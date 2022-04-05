@@ -10,7 +10,7 @@
     <title>My LIFF App</title>
     <style>
         body {
-            background-color: #21252b;
+            /* background-color: #3e4551; */
             /* background-color: #000; */
         }
     </style>
@@ -24,13 +24,16 @@
         var profile, flexlist
         var scripturl = 'https://script.google.com/macros/s/AKfycbyRtKYPoSnN_73e7RcRUKg6-MmkOABVoyr25soIaqBLJYQ9ghiLWPNAhs8MbsDMnA/exec'
         $(document).ready(() => {
-            $.LoadingOverlay("show");
+            $.LoadingOverlay("show",);
             let locationstring = window.location.href
             let url = new URL(locationstring)
             let id = url.searchParams.get("id")
-            $.getJSON(scripturl+'?id='+id,function(data){
+            $.getJSON(scripturl+'?opt=scan&id='+id,function(data){
+                 console.log("🚀 ~ data", data)
+                 $.LoadingOverlay("hide");
                  Swal.fire({
                     title: data.name,
+                    html: 'ใส่ยอดจ่ายเงินตามบิล',
                     input: 'number',
                     inputAttributes: {
                         autocapitalize: 'off'
@@ -40,80 +43,26 @@
                     showLoaderOnConfirm: true,
                     preConfirm: (point) => {
                         point = point / 10
+                        console.log("🚀 ~ point", point)
                         return $.getJSON(scripturl, {
-                            q: 'scanadd',
-                            uid: result.value,
+                            opt: 'scanadd',
+                            uid: id,
                             point: point,
                         })
-                    },
-                    allowOutsideClick: () => !Swal.isLoading()
-                }).then((output) => {
-                    if (output.value.result == 'duplicate') {
-                        return Swal.fire({
-                            icon: 'warning',
-                            title: 'Oops...',
-                            text: 'ชื่อซ้ำ',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
                     }
+
+                }).then((output) => {
+                    console.log("🚀 ~ output", output)
                     Swal.fire({
                         icon: 'success',
-                        title: 'บันทึกเรียบร้อย',
+                        title: 'ปัจจุบันมี ' + output.value.point  + ' คะแนน',
                         showConfirmButton: false,
-                        timer: 1500
+                        
                     })
                 })
             })
         })
 
-    </script>
-    <script>
-        function scancode() {
-            liff.scanCodeV2().then((result) => {
-                alert(result.value)
-                $.getJSON(scripturl, {
-                    "uid": result.value,
-                    "q": "scan"
-                }, function (data) {
-                    Swal.fire({
-                        title: data.name,
-                        input: 'number',
-                        inputAttributes: {
-                            autocapitalize: 'off'
-                        },
-                        showCancelButton: true,
-                        confirmButtonText: 'ยืนยัน',
-                        showLoaderOnConfirm: true,
-                        preConfirm: (point) => {
-                            point = point / 10
-                            return $.post(scripturl, {
-                                q: 'scanadd',
-                                uid: result.value,
-                                point: point,
-                            })
-                        },
-                        allowOutsideClick: () => !Swal.isLoading()
-                    }).then((output) => {
-                        if (output.value.result == 'duplicate') {
-                            return Swal.fire({
-                                icon: 'warning',
-                                title: 'Oops...',
-                                text: 'ชื่อซ้ำ',
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                        }
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'บันทึกเรียบร้อย',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                    })
-                })
-            });
-        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
