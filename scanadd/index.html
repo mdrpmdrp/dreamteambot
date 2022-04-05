@@ -22,17 +22,51 @@
 
     <script>
         var profile, flexlist
-        var scripturl = 'https://script.google.com/macros/s/AKfycbyzG1Rvks3zwXHmHjIga9hlLTyqZg88WRHxXU3TltA3r7yaLCd8MC0dlxzp9zQ_uUAh/exec'
-        async function main() {
-            await liff.init({ liffId: '1657027528-z9prE7kn' });
-            if (liff.isLoggedIn()) {
-                $.LoadingOverlay("hide");
-                scancode()
-            } else {
-                $.LoadingOverlay("hide");
-            }
-        }
-        main();
+        var scripturl = 'https://script.google.com/macros/s/AKfycbyRtKYPoSnN_73e7RcRUKg6-MmkOABVoyr25soIaqBLJYQ9ghiLWPNAhs8MbsDMnA/exec'
+        $(document).ready(() => {
+            $.LoadingOverlay("show");
+            let locationstring = window.location.href
+            let url = new URL(locationstring)
+            let id = url.searchParams.get("id")
+            $.getJSON(scripturl+'?id='+id,function(data){
+                 Swal.fire({
+                    title: data.name,
+                    input: 'number',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'ยืนยัน',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (point) => {
+                        point = point / 10
+                        return $.getJSON(scripturl, {
+                            q: 'scanadd',
+                            uid: result.value,
+                            point: point,
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((output) => {
+                    if (output.value.result == 'duplicate') {
+                        return Swal.fire({
+                            icon: 'warning',
+                            title: 'Oops...',
+                            text: 'ชื่อซ้ำ',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกเรียบร้อย',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                })
+            })
+        })
+
     </script>
     <script>
         function scancode() {
@@ -52,7 +86,7 @@
                         confirmButtonText: 'ยืนยัน',
                         showLoaderOnConfirm: true,
                         preConfirm: (point) => {
-                            point = point/10
+                            point = point / 10
                             return $.post(scripturl, {
                                 q: 'scanadd',
                                 uid: result.value,
