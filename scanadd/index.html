@@ -1,1 +1,90 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <title>My LIFF App</title>
+    <style>
+        body {
+            background-color: #fafafa;
+            /* background-color: #000; */
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <script>
+        var profile, flexlist
+        var scripturl = 'https://script.google.com/macros/s/AKfycbyzG1Rvks3zwXHmHjIga9hlLTyqZg88WRHxXU3TltA3r7yaLCd8MC0dlxzp9zQ_uUAh/exec'
+        async function main() {
+            await liff.init({ liffId: '1657027528-z9prE7kn' });
+            if (liff.isLoggedIn()) {
+                $.LoadingOverlay("hide");
+                scancode()
+            } else {
+                $.LoadingOverlay("hide");
+            }
+        }
+        // main();
+    </script>
+    <script>
+        function scancode() {
+            liff.scanCodeV2().then((result) => {
+                alert(result.value)
+                $.getJSON(scripturl, {
+                    "uid": result.value,
+                    "q": "scan"
+                }, function (data) {
+                    Swal.fire({
+                        title: data.name,
+                        input: 'number',
+                        inputAttributes: {
+                            autocapitalize: 'off'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'ยืนยัน',
+                        showLoaderOnConfirm: true,
+                        preConfirm: (point) => {
+                            point = point/10
+                            return $.post(scripturl, {
+                                q: 'scanadd',
+                                uid: result.value,
+                                point: point,
+                            })
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }).then((output) => {
+                        if (output.value.result == 'duplicate') {
+                            return Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops...',
+                                text: 'ชื่อซ้ำ',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'บันทึกเรียบร้อย',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    })
+                })
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>
